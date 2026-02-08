@@ -1,61 +1,58 @@
--- This file can be loaded by calling `lua require('plugins')` from your init.vim
+-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
+if not vim.uv.fs_stat(lazypath) then
+  vim.fn.system({
+    'git', 'clone', '--filter=blob:none',
+    'https://github.com/folke/lazy.nvim.git',
+    '--branch=stable',
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
 
--- Only required if you have packer configured as `opt`
-vim.cmd [[packadd packer.nvim]]
+require('lazy').setup({
+  -- LSP Support
+  'neovim/nvim-lspconfig',
+  {
+    'williamboman/mason.nvim',
+    build = function()
+      pcall(vim.cmd, 'MasonUpdate')
+    end,
+  },
+  'williamboman/mason-lspconfig.nvim',
 
-return require('packer').startup(function(use)
-  -- Packer can manage itself
-  use 'wbthomason/packer.nvim'
-
-  use {
-    'VonHeikemen/lsp-zero.nvim',
-    branch = 'v2.x',
-    requires = {
-      -- LSP Support
-      {'neovim/nvim-lspconfig'},             -- Required
-      {                                      -- Optional
-        'williamboman/mason.nvim',
-        run = function()
-          pcall(vim.cmd, 'MasonUpdate')
-        end,
-      },
-      {'williamboman/mason-lspconfig.nvim'}, -- Optional
-
-      -- Autocompletion
-      {'hrsh7th/nvim-cmp'},     -- Required
-      {'hrsh7th/cmp-nvim-lsp'}, -- Required
-      {'L3MON4D3/LuaSnip'},     -- Required
-    }
-  }
+  -- Autocompletion
+  'hrsh7th/nvim-cmp',
+  'hrsh7th/cmp-nvim-lsp',
+  'L3MON4D3/LuaSnip',
 
   -- Shows git diff on the side
-  use {
+  {
     'lewis6991/gitsigns.nvim',
-    -- tag = 'release' -- To use the latest release (do not use this if you run Neovim nightly or dev builds!)
     config = function()
       require('gitsigns').setup()
     end
-  }
+  },
 
   -- Auto-closing brackets on enter({})
-  use 'rstacruz/vim-closer'
+  'rstacruz/vim-closer',
 
   -- Highlights matching brackets({} if else end)
-  use 'andymass/vim-matchup'
+  'andymass/vim-matchup',
 
   -- Commenting(gcc)
-  use {
+  {
     'numToStr/Comment.nvim',
     config = function()
       require('Comment').setup()
     end
-  }
+  },
 
   -- Tree view
-  use {
+  {
     'nvim-tree/nvim-tree.lua',
-    requires = {
-      'nvim-tree/nvim-web-devicons', -- optional
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
     },
     config = function()
       require('nvim-tree').setup {
@@ -64,29 +61,29 @@ return require('packer').startup(function(use)
         }
       }
     end
-  }
+  },
 
   -- File search
-  use {
+  {
     'nvim-telescope/telescope.nvim',
-    requires = { {'nvim-lua/plenary.nvim'} }
-  }
+    dependencies = { 'nvim-lua/plenary.nvim' }
+  },
 
   -- Rails tools
-  use 'tpope/vim-rails'
+  'tpope/vim-rails',
 
   -- Color scheme
-  use 'folke/tokyonight.nvim'
+  'folke/tokyonight.nvim',
 
   -- Status line
-  use {
+  {
     'nvim-lualine/lualine.nvim',
-    requires = { 'nvim-tree/nvim-web-devicons', opt = true },
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
     config = function()
       require('lualine').setup()
     end
-  }
+  },
 
   -- Toggle terminal
-  use {'akinsho/toggleterm.nvim', tag = '*', config = function() end}
-end)
+  { 'akinsho/toggleterm.nvim', version = '*' },
+})

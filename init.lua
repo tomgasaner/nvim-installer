@@ -78,17 +78,28 @@ nmap('<Leader>e', ":lua vim.diagnostic.open_float(0, {scope='line'})<CR>")
 -- <Ctrl> + <key>    = Navigate LSP items
 -- <Tab>             = Confirm LSP suggestion
 local cmp = require('cmp')
-local cmp_action = require('lsp-zero').cmp_action()
+local luasnip = require('luasnip')
 cmp.setup({
+  sources = {
+    { name = 'nvim_lsp' },
+    { name = 'luasnip' },
+  },
+  snippet = {
+    expand = function(args)
+      luasnip.lsp_expand(args.body)
+    end,
+  },
   mapping = {
     -- Navigate between completion item
     ['<C-k>'] = cmp.mapping.select_prev_item(),
     ['<C-j>'] = cmp.mapping.select_next_item(),
     -- toggle completion
-    ['<C-u>'] = cmp_action.toggle_completion(),
+    ['<C-u>'] = cmp.mapping(function()
+      if cmp.visible() then cmp.close() else cmp.complete() end
+    end),
     -- navigate between snippet placeholder
-    ['<C-a>'] = cmp_action.luasnip_jump_backward(),
-    ['<C-d>'] = cmp_action.luasnip_jump_forward(),
+    ['<C-a>'] = cmp.mapping(function() luasnip.jump(-1) end, { 'i', 's' }),
+    ['<C-d>'] = cmp.mapping(function() luasnip.jump(1) end, { 'i', 's' }),
     -- Confirm item
     ['<Tab>'] = cmp.mapping.confirm({select = true}),
   }
@@ -110,21 +121,29 @@ vim.cmd('colorscheme tokyonight-storm')
 vim.lsp.set_log_level("off")
 
 -- LSP
-local lsp = require('lsp-zero').preset({})
-
-lsp.on_attach(function(client, bufnr)
-  lsp.default_keymaps({buffer = bufnr})
-end)
-
-lsp.ensure_installed({
-  -- Replace these with whatever servers you want to install
-  -- Servers list: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
-  -- Type :Mason to update/install LSPs
-  'gopls', -- Go
+-- Servers list: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
+-- Type :Mason to update/install LSPs
+local servers = {
+  'gopls',      -- Go
   'solargraph', -- Ruby
-  'terraformls', -- Terraform
-  'vtsls', -- JS/TS
+  'terraformls',-- Terraform
+  'vtsls',      -- JS/TS
+}
+
+require('mason').setup()
+require('mason-lspconfig').setup({
+  ensure_installed = servers,
 })
+
+local lsp_capabilities = require('cmp_nvim_lsp').default_capabilities()
+for _, server in ipairs(servers) do
+  vim.lsp.config(server, {
+    capabilities = lsp_capabilities,
+  })
+end
+vim.lsp.enable(servers)
+
+-- LSP keymaps (gd, K, grn, gra, grr are built-in in nvim 0.11+)
 
 -- Don't use terraformls on .tfvars as it's full of errors
 vim.cmd([[
@@ -133,5 +152,3 @@ vim.cmd([[
     autocmd BufRead,BufNewFile *.tfvars setlocal filetype=plaintext
   augroup END
 ]])
-
-lsp.setup()
