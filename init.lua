@@ -104,9 +104,11 @@ cmp.setup({
     ['<Tab>'] = cmp.mapping.confirm({select = true}),
   }
 })
+-- <g> <d>  = Go to definition(<Ctrl> + <o> back)
+nmap('gd', '<CMD>lua vim.lsp.buf.definition()<CR>')
+
 -- Reminder
 -- <K> = See docs
--- gd  = Go to definition(<Ctrl> + <o> back)
 -- <Ctrl> + <i> = go forward
 -- <Ctrl> + <o> = go back
 
@@ -143,7 +145,7 @@ for _, server in ipairs(servers) do
 end
 vim.lsp.enable(servers)
 
--- LSP keymaps (gd, K, grn, gra, grr are built-in in nvim 0.11+)
+-- LSP keymaps (K, grn, gra, grr are built-in in nvim 0.11+)
 
 -- Don't use terraformls on .tfvars as it's full of errors
 vim.cmd([[
