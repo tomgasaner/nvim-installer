@@ -113,7 +113,7 @@ nmap('gd', '<CMD>lua vim.lsp.buf.definition()<CR>')
 -- <Ctrl> + <o> = go back
 
 -- Language
-vim.cmd('language en_US')
+pcall(vim.cmd, 'language en_US')
 
 -- Colorscheme
 vim.cmd('colorscheme tokyonight-storm')
