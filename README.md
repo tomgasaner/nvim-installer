@@ -2,6 +2,8 @@
 
 My neovim distribution. Setup and keep things up-to-date with 1 command.
 
+Supported OS: MacOS, Arch Linux
+
 ## Usage
 
 To list the available commands type:

@@ -14,7 +14,13 @@ help:
 .PHONY: install # Install neovim and plugins
 install:
 	@echo "→ Installing neovim"
-	brew upgrade nvim || brew install nvim
+	@if [ "$$(uname)" = "Darwin" ]; then \
+		brew upgrade nvim || brew install nvim; \
+	elif command -v pacman >/dev/null 2>&1; then \
+		sudo pacman -S --needed --noconfirm neovim; \
+	else \
+		echo "Unsupported OS: install neovim manually"; exit 1; \
+	fi
 	@echo "→ Symlinking"
 	mkdir -p $(LUA_CONFIG_DIR)
 	ln -nfs $(shell pwd)/$(PLUGINS_FILE) $(LUA_CONFIG_DIR)/$(PLUGINS_FILE)
@@ -25,7 +31,13 @@ install:
 .PHONY: remove # Remove distribution
 remove:
 	@echo "→ Removing neovim"
-	brew uninstall nvim
+	@if [ "$$(uname)" = "Darwin" ]; then \
+		brew uninstall nvim; \
+	elif command -v pacman >/dev/null 2>&1; then \
+		sudo pacman -Rns --noconfirm neovim; \
+	else \
+		echo "Unsupported OS: remove neovim manually"; exit 1; \
+	fi
 	@echo "→ Removing plugins"
 	rm -rf $(NVIM_CONFIG_DIR)
 	rm -rf $(NVIM_LOCAL_SHARE_DIR)
